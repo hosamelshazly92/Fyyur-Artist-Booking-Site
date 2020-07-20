@@ -23,46 +23,55 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# TODO: connect to a local postgresql database
+# TODO_DONE: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+  __tablename__ = 'venue'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    num_upcoming_shows = db.Column(db.Integer)
-    address = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String, nullable=False)
+  num_upcoming_shows = db.Column(db.Integer, nullable=False, default=0)
 
-    def __repr__(self):
-      return f'<Venue ID: {self.id}, Name: {self.name}, City: {self.city}, State: {self.state}, No. Events: {self.num_upcoming_shows}>'
+  # foreign key
+  area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+  def __repr__(self):
+    return f'<Venue ID: {self.id}, Name: {self.name}, No. Events: {self.num_upcoming_shows}>'
+
+  # TODO: implement any missing fields, as a database migration using Flask-Migrate
+
+class Area(db.Model):
+  __tablename__ = "area"
+
+  id = db.Column(db.Integer, primary_key=True)
+  city = db.Column(db.String(120), nullable=False)
+  state = db.Column(db.String(120), nullable=False)
+
+  # relationship
+  venues = db.relationship('Venue', backref='parent', lazy=True) 
+
+  def __repr__(self):
+      return f'<Area ID: {self.id}, City: {self.city}, State: {self.state}>'
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+  __tablename__ = 'artist'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String, nullable=False)
+  phone = db.Column(db.String(120))
+  address = db.Column(db.String(120))
+  genres = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
 
-    def __repr__(self):
-      return f'<Artist ID: {self.id}, Name: {self.name}>'
+  def __repr__(self):
+    return f'<Artist ID: {self.id}, Name: {self.name}>'
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+  # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
@@ -94,31 +103,9 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=Venue.query.distinct()
-  # data=[{
-  #   "city": "San Francisco",
-  #   "state": "CA",
-  #   "venues": [{
-  #     "id": 1,
-  #     "name": "The Musical Hop",
-  #     "num_upcoming_shows": 0,
-  #   }, {
-  #     "id": 3,
-  #     "name": "Park Square Live Music & Coffee",
-  #     "num_upcoming_shows": 1,
-  #   }]
-  # }, {
-  #   "city": "New York",
-  #   "state": "NY",
-  #   "venues": [{
-  #     "id": 2,
-  #     "name": "The Dueling Pianos Bar",
-  #     "num_upcoming_shows": 0,
-  #   }]
-  # }]
-  return render_template('pages/venues.html', areas=data);
+  # TODO_DONE: replace with real venues data.
+  data_area = Area.query.all()
+  return render_template('pages/venues.html', areas=data_area);
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
