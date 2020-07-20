@@ -105,22 +105,17 @@ def index():
 def venues():
   # TODO_DONE: replace with real venues data.
   data_area = Area.query.all()
+
   return render_template('pages/venues.html', areas=data_area);
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for Hop should return "The Musical Hop".
-  # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+  # TODO_DONE: implement search on artists with partial string search. Ensure it is case-insensitive.
+  term = request.form.get('search_term', '')
+  data = Venue.query.filter(Venue.name.ilike('%' + term + '%')).all()
+  count = Venue.query.filter(Venue.name.ilike('%' + term + '%')).count()
+
+  return render_template('pages/search_venues.html', results=data, count=count, search_term=term)
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -241,6 +236,7 @@ def delete_venue(venue_id):
 def artists():
   # TODO_DONE: replace with real data returned from querying the database
   data = Artist.query.all()
+
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
@@ -249,7 +245,8 @@ def search_artists():
   term = request.form.get('search_term', '')
   data = Artist.query.filter(Artist.name.ilike('%' + term + '%')).all()
   count = Artist.query.filter(Artist.name.ilike('%' + term + '%')).count()
-  return render_template('pages/search_artists.html', data=data, count = count, search_term=request.form.get('search_term', ''))
+
+  return render_template('pages/search_artists.html', results=data, count=count, search_term=term)
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
