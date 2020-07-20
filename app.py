@@ -247,11 +247,13 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
+  # TODO_DONE: replace with real data returned from querying the database
   data = Artist.query.all()
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
+  # TODO_DONE: implement search on artists with partial string search. Ensure it is case-insensitive.
   term = request.form.get('search_term', '')
   data = Artist.query.filter(Artist.name.ilike('%' + term + '%')).all()
   count = Artist.query.filter(Artist.name.ilike('%' + term + '%')).count()
