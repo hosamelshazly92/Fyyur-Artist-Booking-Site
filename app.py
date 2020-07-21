@@ -30,12 +30,11 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 
 # association table
-show = db.Table('show', 
-  db.Column('id', db.Integer, primary_key=True),
-
-  # foreign keys
+show = db.Table('show',
+  db.Column('id', db.Integer, primary_key=True), 
   db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')), 
-  db.Column('venue_id', db.Integer, db.ForeignKey('venue.id'))
+  db.Column('venue_id', db.Integer, db.ForeignKey('venue.id')),
+  db.Column('start_time', db.DateTime, nullable=True)
 )
 
 class Artist(db.Model):
@@ -56,7 +55,7 @@ class Artist(db.Model):
   def __repr__(self):
     return f'<Artist ID: {self.id}, Name: {self.name}>'
 
-  # TODO: implement any missing fields, as a database migration using Flask-Migrate
+  # TODO_DONE: implement any missing fields, as a database migration using Flask-Migrate
 
 class Venue(db.Model):
   __tablename__ = 'venue'
@@ -68,13 +67,11 @@ class Venue(db.Model):
   # association child table (right)
   # child table (foreign key)
   area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
-  # parent table (relationship)
-  times = db.relationship('Time', backref='parent_venue', lazy=True) 
 
   def __repr__(self):
     return f'<Venue ID: {self.id}, Name: {self.name}, No. Events: {self.num_upcoming_shows}>'
 
-  # TODO: implement any missing fields, as a database migration using Flask-Migrate
+  # TODO_DONE: implement any missing fields, as a database migration using Flask-Migrate
 
 class Area(db.Model):
   __tablename__ = "area"
@@ -89,19 +86,7 @@ class Area(db.Model):
   def __repr__(self):
       return f'<Area ID: {self.id}, City: {self.city}, State: {self.state}>'
 
-class Time(db.Model):
-  __tablename__ = "time"
-
-  id = db.Column(db.Integer, primary_key=True)
-  start_time = db.Column(db.DateTime, nullable=False)
-
-  # child table (foreign key)
-  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
-
-  def __repr__(self):
-      return f'<Time ID: {self.id}, City: {self.start_time}>'
-
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+# TODO_DONE Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -280,78 +265,82 @@ def search_artists():
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  data1={
-    "id": 4,
-    "name": "Guns N Petals",
-    "genres": ["Rock n Roll"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "326-123-5000",
-    "website": "https://www.gunsnpetalsband.com",
-    "facebook_link": "https://www.facebook.com/GunsNPetals",
-    "seeking_venue": True,
-    "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-    "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-    "past_shows": [{
-      "venue_id": 1,
-      "venue_name": "The Musical Hop",
-      "venue_image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-      "start_time": "2019-05-21T21:30:00.000Z"
-    }],
-    "upcoming_shows": [],
-    "past_shows_count": 1,
-    "upcoming_shows_count": 0,
-  }
-  data2={
-    "id": 5,
-    "name": "Matt Quevedo",
-    "genres": ["Jazz"],
-    "city": "New York",
-    "state": "NY",
-    "phone": "300-400-5000",
-    "facebook_link": "https://www.facebook.com/mattquevedo923251523",
-    "seeking_venue": False,
-    "image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-    "past_shows": [{
-      "venue_id": 3,
-      "venue_name": "Park Square Live Music & Coffee",
-      "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-      "start_time": "2019-06-15T23:00:00.000Z"
-    }],
-    "upcoming_shows": [],
-    "past_shows_count": 1,
-    "upcoming_shows_count": 0,
-  }
-  data3={
-    "id": 6,
-    "name": "The Wild Sax Band",
-    "genres": ["Jazz", "Classical"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "432-325-5432",
-    "seeking_venue": False,
-    "image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "past_shows": [],
-    "upcoming_shows": [{
-      "venue_id": 3,
-      "venue_name": "Park Square Live Music & Coffee",
-      "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-      "start_time": "2035-04-01T20:00:00.000Z"
-    }, {
-      "venue_id": 3,
-      "venue_name": "Park Square Live Music & Coffee",
-      "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-      "start_time": "2035-04-08T20:00:00.000Z"
-    }, {
-      "venue_id": 3,
-      "venue_name": "Park Square Live Music & Coffee",
-      "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-      "start_time": "2035-04-15T20:00:00.000Z"
-    }],
-    "past_shows_count": 0,
-    "upcoming_shows_count": 3,
-  }
-  data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
+  
+  # data1={
+  #   "id": 4,
+  #   "name": "Guns N Petals",
+  #   "genres": ["Rock n Roll"],
+  #   "city": "San Francisco",
+  #   "state": "CA",
+  #   "phone": "326-123-5000",
+  #   "website": "https://www.gunsnpetalsband.com",
+  #   "facebook_link": "https://www.facebook.com/GunsNPetals",
+  #   "seeking_venue": True,
+  #   "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
+  #   "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
+  #   "past_shows": [{
+  #     "venue_id": 1,
+  #     "venue_name": "The Musical Hop",
+  #     "venue_image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+  #     "start_time": "2019-05-21T21:30:00.000Z"
+  #   }],
+  #   "upcoming_shows": [],
+  #   "past_shows_count": 1,
+  #   "upcoming_shows_count": 0,
+  # }
+  # data2={
+  #   "id": 5,
+  #   "name": "Matt Quevedo",
+  #   "genres": ["Jazz"],
+  #   "city": "New York",
+  #   "state": "NY",
+  #   "phone": "300-400-5000",
+  #   "facebook_link": "https://www.facebook.com/mattquevedo923251523",
+  #   "seeking_venue": False,
+  #   "image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
+  #   "past_shows": [{
+  #     "venue_id": 3,
+  #     "venue_name": "Park Square Live Music & Coffee",
+  #     "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+  #     "start_time": "2019-06-15T23:00:00.000Z"
+  #   }],
+  #   "upcoming_shows": [],
+  #   "past_shows_count": 1,
+  #   "upcoming_shows_count": 0,
+  # }
+  # data3={
+  #   "id": 6,
+  #   "name": "The Wild Sax Band",
+  #   "genres": ["Jazz", "Classical"],
+  #   "city": "San Francisco",
+  #   "state": "CA",
+  #   "phone": "432-325-5432",
+  #   "seeking_venue": False,
+  #   "image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
+  #   "past_shows": [],
+  #   "upcoming_shows": [{
+  #     "venue_id": 3,
+  #     "venue_name": "Park Square Live Music & Coffee",
+  #     "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+  #     "start_time": "2035-04-01T20:00:00.000Z"
+  #   }, {
+  #     "venue_id": 3,
+  #     "venue_name": "Park Square Live Music & Coffee",
+  #     "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+  #     "start_time": "2035-04-08T20:00:00.000Z"
+  #   }, {
+  #     "venue_id": 3,
+  #     "venue_name": "Park Square Live Music & Coffee",
+  #     "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+  #     "start_time": "2035-04-15T20:00:00.000Z"
+  #   }],
+  #   "past_shows_count": 0,
+  #   "upcoming_shows_count": 3,
+  # }
+  # data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
+
+  data = Artist.query.get(artist_id)
+
   return render_template('pages/show_artist.html', artist=data)
 
 #  Update
@@ -437,46 +426,9 @@ def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
+  data_artist = Artist.query.all()
 
-  data = Venue.query.all()
-  
-  # data=[{
-  #   "venue_id": 1,
-  #   "venue_name": "The Musical Hop",
-  #   "artist_id": 4,
-  #   "artist_name": "Guns N Petals",
-  #   "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-  #   "start_time": "2019-05-21T21:30:00.000Z"
-  # }, {
-  #   "venue_id": 3,
-  #   "venue_name": "Park Square Live Music & Coffee",
-  #   "artist_id": 5,
-  #   "artist_name": "Matt Quevedo",
-  #   "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-  #   "start_time": "2019-06-15T23:00:00.000Z"
-  # }, {
-  #   "venue_id": 3,
-  #   "venue_name": "Park Square Live Music & Coffee",
-  #   "artist_id": 6,
-  #   "artist_name": "The Wild Sax Band",
-  #   "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-  #   "start_time": "2035-04-01T20:00:00.000Z"
-  # }, {
-  #   "venue_id": 3,
-  #   "venue_name": "Park Square Live Music & Coffee",
-  #   "artist_id": 6,
-  #   "artist_name": "The Wild Sax Band",
-  #   "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-  #   "start_time": "2035-04-08T20:00:00.000Z"
-  # }, {
-  #   "venue_id": 3,
-  #   "venue_name": "Park Square Live Music & Coffee",
-  #   "artist_id": 6,
-  #   "artist_name": "The Wild Sax Band",
-  #   "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-  #   "start_time": "2035-04-15T20:00:00.000Z"
-  # }]
-  return render_template('pages/shows.html', shows=data)
+  return render_template('pages/shows.html', data=data_artist)
 
 @app.route('/shows/create')
 def create_shows():
