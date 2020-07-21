@@ -48,6 +48,7 @@ class Artist(db.Model):
   address = db.Column(db.String(120))
   genres = db.Column(db.String(120))
   facebook_link = db.Column(db.String(120))
+  seeking_venue = db.Column(db.Boolean)
 
   # association parent table (left)
   venues = db.relationship("Venue", secondary=show, backref=db.backref('artists', lazy=True))
