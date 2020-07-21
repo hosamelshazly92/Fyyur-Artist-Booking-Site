@@ -63,7 +63,10 @@ class Venue(db.Model):
 
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
+  venue_image_link = db.Column(db.String(500))
+  
   num_upcoming_shows = db.Column(db.Integer, nullable=False, default=0)
+
 
   # association child table (right)
   # child table (foreign key)
