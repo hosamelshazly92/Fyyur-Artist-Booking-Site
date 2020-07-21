@@ -42,11 +42,11 @@ class Artist(db.Model):
 
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
-  image_link = db.Column(db.String(), nullable=False)
+  image_link = db.Column(db.String(500), nullable=False)
+  website = db.Column(db.String(120))
   phone = db.Column(db.String(120))
   address = db.Column(db.String(120))
   genres = db.Column(db.String(120))
-  image_link = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
 
   # association parent table (left)
@@ -339,9 +339,10 @@ def show_artist(artist_id):
   # }
   # data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
 
-  data = Artist.query.get(artist_id)
+  data_artist = Artist.query.get(artist_id)
+  data_area = Area.query.first()
 
-  return render_template('pages/show_artist.html', artist=data)
+  return render_template('pages/show_artist.html', artist=data_artist, area=data_area)
 
 #  Update
 #  ----------------------------------------------------------------
