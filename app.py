@@ -65,6 +65,11 @@ class Venue(db.Model):
   name = db.Column(db.String, nullable=False)
   address = db.Column(db.String(120))
   venue_image_link = db.Column(db.String(500))
+  website = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  genres = db.Column(db.String(120))
+  facebook_link = db.Column(db.String(120))
+  seeking_talent = db.Column(db.String(120))
   num_upcoming_shows = db.Column(db.Integer, nullable=False, default=0)
 
 
