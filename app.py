@@ -11,7 +11,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from forms import *
 from flask_migrate import Migrate
 from flask import abort
@@ -36,15 +36,16 @@ show = db.Table('show',
   db.Column('id', db.Integer, primary_key=True), 
   db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')), 
   db.Column('venue_id', db.Integer, db.ForeignKey('venue.id')),
-  db.Column('start_time', db.DateTime, nullable=True)
+  db.Column('start_time', db.DateTime)
 )
 
+# association parent table (left)
 class Artist(db.Model):
   __tablename__ = 'artist'
 
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
-  image_link = db.Column(db.String(500), nullable=False)
+  image_link = db.Column(db.String(500))
   website = db.Column(db.String(120))
   phone = db.Column(db.String(120))
   address = db.Column(db.String(120))
@@ -54,7 +55,6 @@ class Artist(db.Model):
   city = db.Column(db.String(120))
   state = db.Column(db.String(120))
 
-  # association parent table (left)
   venues = db.relationship("Venue", secondary=show, backref=db.backref('artists', lazy=True))
 
   def __repr__(self):
@@ -62,6 +62,7 @@ class Artist(db.Model):
 
   # TODO_DONE: implement any missing fields, as a database migration using Flask-Migrate
 
+# association child table (right)
 class Venue(db.Model):
   __tablename__ = 'venue'
 
@@ -75,30 +76,14 @@ class Venue(db.Model):
   facebook_link = db.Column(db.String(120))
   seeking_talent = db.Column(db.String(120))
   seeking_description = db.Column(db.String(500))
-  num_upcoming_shows = db.Column(db.Integer, nullable=False, default=0)
-
-
-  # association child table (right)
-  # child table (foreign key)
-  area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  num_upcoming_shows = db.Column(db.Integer, default=0)
 
   def __repr__(self):
     return f'<Venue ID: {self.id}, Name: {self.name}, No. Events: {self.num_upcoming_shows}>'
 
   # TODO_DONE: implement any missing fields, as a database migration using Flask-Migrate
-
-class Area(db.Model):
-  __tablename__ = "area"
-
-  id = db.Column(db.Integer, primary_key=True)
-  city = db.Column(db.String(120), nullable=False)
-  state = db.Column(db.String(120), nullable=False)
-
-  # parent table (relationship)
-  venues = db.relationship('Venue', backref='parent', lazy=True) 
-
-  def __repr__(self):
-      return f'<Area ID: {self.id}, City: {self.city}, State: {self.state}>'
 
 # TODO_DONE Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
@@ -161,7 +146,7 @@ def create_venue_form():
   return render_template('forms/new_venue.html', form=form)
 
 @app.route('/venues/create', methods=['POST'])
-def create_venue_submission():
+def create_venue_submission():    
   error = False
   try:
     get_name = request.form.get('name')
@@ -172,17 +157,10 @@ def create_venue_submission():
     get_genres = request.form.get('genres')
     get_facebook_link = request.form.get('facebook_link')
 
-    name = Venue(name=get_name)
-    city = Area(city=get_city)
-    state = Area(city=get_state)
-    address = Venue(address=get_address)
-    phone = Venue(phone=get_phone)
-    genres = Venue(genres=get_genres)
-    facebook_link = Venue(facebook_link=get_facebook_link)
+    venue_new = Venue(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, genres=get_genres, facebook_link=get_facebook_link, )
+    print(f'==========> {venue_new}')
 
-    rel = Venue(name=get_name, parent=get_city)
-
-    db.session.add_all([name, city, state, address, phone, genres, facebook_link, rel])
+    db.session.add(venue_new)
     db.session.commit()
   except:
     error = True
@@ -193,7 +171,10 @@ def create_venue_submission():
   if error:
     abort (400)
   else:
+    # if form.validate_on_submit():
+    #   return 'Venue ' + request.form['name'] + ' was successfully listed!'
     return render_template('pages/home.html')
+
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
 
@@ -237,9 +218,8 @@ def show_artist(artist_id):
   # TODO: replace with real venue data from the venues table, using venue_id
 
   data_artist = Artist.query.get(artist_id)
-  data_area = Area.query.first()
 
-  return render_template('pages/show_artist.html', artist=data_artist, area=data_area)
+  return render_template('pages/show_artist.html', artist=data_artist)
 
 #  Update
 #  ----------------------------------------------------------------
@@ -306,11 +286,22 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
 
-  get_name = request.form.get('name')
+  get_name = request.form['name']
+  get_city = request.form['city']
+  get_state = request.form['state']
+  get_phone = request.form['phone']
+  get_genres = request.form['genres']
+  get_facebook_link = request.form['facebook_link']
 
   name = Artist(name=get_name)
+  city = Artist(city=get_city)
+  state = Artist(state=get_state)
+  phone = Artist(phone=get_phone)
+  genres = Artist(genres=get_genres)
+  facebook_link = Artist(facebook_link=get_facebook_link)
+  image_link = Artist(image_link='link')
 
-  db.session.add(name)
+  db.session.add_all([name, city, state, phone, genres, facebook_link, image_link])
   db.session.commit()
   # called upon submitting the new artist listing form
   # TODO: insert form data as a new Venue record in the db, instead
@@ -378,7 +369,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
 
 # Or specify port manually:
 '''

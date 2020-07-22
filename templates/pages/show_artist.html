@@ -10,12 +10,10 @@
 			ID: {{ artist.id }}
 		</p>
 		<div class="genres">
-			{% for genre in artist.genres %}
-			<span class="genre">{{ genre }}</span>
-			{% endfor %}
+			<span class="genre">{{ artist.genres }}</span>
 		</div>
 		<p>
-			<i class="fas fa-globe-americas"></i> {{ area.city }}, {{ area.state }}
+			<i class="fas fa-globe-americas"></i> {{ artist.city }}, {{ artist.state }}
 		</p>
 		<p>
 			<i class="fas fa-phone-alt"></i> {% if artist.phone %}{{ artist.phone }}{% else %}No Phone{% endif %}
@@ -49,9 +47,9 @@
 		{%for show in artist.venues %}
 		<div class="col-sm-4">
 			<div class="tile tile-show">
-				<img src="{{ show.venue_image_link }}" alt="Show Venue Image" />
+				<img src="{{ show.image_link }}" alt="Show Venue Image" />
 				<h5><a href="/venues/{{ show.id }}">{{ show.name }}</a></h5>
-				<h6>{{ show }}</h6>
+				<h6>{{ show.name }}</h6>
 				<!-- show.start_time|datetime('full') -->
 			</div>
 		</div>
@@ -64,7 +62,7 @@
 		{%for show in artist.past_shows %}
 		<div class="col-sm-4">
 			<div class="tile tile-show">
-				<img src="{{ show.venue_image_link }}" alt="Show Venue Image" />
+				<img src="{{ show.image_link }}" alt="Show Venue Image" />
 				<h5><a href="/venues/{{ show.id }}">{{ show.name }}</a></h5>
 				<h6>{{ show }}</h6>
 				<!-- {{ show.start_time|datetime('full') }} -->
