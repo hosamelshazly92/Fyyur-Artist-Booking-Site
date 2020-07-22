@@ -406,8 +406,6 @@ def delete_artist(artist_id):
 def shows():
   # TODO_DONE: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  # show = db.session.query(Artist).all()
-  # show = db.session.query(show).all()
   show = Show.query.all()
 
   return render_template('pages/shows.html', shows=show)
