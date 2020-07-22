@@ -1,34 +1,38 @@
 {% extends 'layouts/main.html' %}
-{% block title %}{{ artist.name }} | Artist{% endblock %}
+{% block title %}{{ artists.name }} | Artist{% endblock %}
 {% block content %}
 <div class="row">
 	<div class="col-sm-6">
+		<button class="btn btn-danger delete-btn" data-id={{artists.id}}>Delete Artist</button>
+
 		<h1 class="monospace">
-			{{ artist.name }}
+			{{ artists.name }}
 		</h1>
 		<p class="subtitle">
-			ID: {{ artist.id }}
+			ID: {{ artists.id }}
 		</p>
 		<div class="genres">
-			<span class="genre">{{ artist.genres }}</span>
+			{% for genre in artists.genres[1:-1].split(',') %}
+			<span class="genre">{{ genre }}</span>
+			{% endfor %}
 		</div>
 		<p>
-			<i class="fas fa-globe-americas"></i> {{ artist.city }}, {{ artist.state }}
+			<i class="fas fa-globe-americas"></i> {{ artists.city }}, {{ artists.state }}
 		</p>
 		<p>
-			<i class="fas fa-phone-alt"></i> {% if artist.phone %}{{ artist.phone }}{% else %}No Phone{% endif %}
+			<i class="fas fa-phone-alt"></i> {% if artists.phone %}{{ artists.phone }}{% else %}No Phone{% endif %}
         </p>
         <p>
-			<i class="fas fa-link"></i> {% if artist.website %}<a href="{{ artist.website }}" target="_blank">{{ artist.website }}</a>{% else %}No Website{% endif %}
+			<i class="fas fa-link"></i> {% if artists.website %}<a href="{{ artists.website }}" target="_blank">{{ artists.website }}</a>{% else %}No Website{% endif %}
 		</p>
 		<p>
-			<i class="fab fa-facebook-f"></i> {% if artist.facebook_link %}<a href="{{ artist.facebook_link }}" target="_blank">{{ artist.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
+			<i class="fab fa-facebook-f"></i> {% if artists.facebook_link %}<a href="{{ artists.facebook_link }}" target="_blank">{{ artists.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
         </p>
-		{% if artist.seeking_venue %}
+		{% if artists.seeking_venue %}
 		<div class="seeking">
 			<p class="lead">Currently seeking performance venues</p>
 			<div class="description">
-				<i class="fas fa-quote-left"></i> {{ artist.seeking_description }} <i class="fas fa-quote-right"></i>
+				<i class="fas fa-quote-left"></i> {{ artists.seeking_description }} <i class="fas fa-quote-right"></i>
 			</div>
 		</div>
 		{% else %}	
@@ -38,13 +42,13 @@
 		{% endif %}
 	</div>
 	<div class="col-sm-6">
-		<img src="{{ artist.image_link }}" alt="Venue Image" />
+		<img src="{{ artists.image_link }}" alt="Venue Image" />
 	</div>
 </div>
 <section>
-	<h2 class="monospace">{{ artist.venues[0].num_upcoming_shows }} Upcoming {% if artist.upcoming_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
+	<h2 class="monospace">{{ artists.num_upcoming_shows }} Upcoming {% if artists.upcoming_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
 	<div class="row">
-		{%for show in artist.venues %}
+		{%for show in artists.venues %}
 		<div class="col-sm-4">
 			<div class="tile tile-show">
 				<img src="{{ show.image_link }}" alt="Show Venue Image" />
@@ -57,9 +61,9 @@
 	</div>
 </section>
 <section>
-	<h2 class="monospace">{{ artist.past_shows_count }} Past {% if artist.past_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
+	<h2 class="monospace">{{ artists.past_shows_count }} Past {% if artists.past_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
 	<div class="row">
-		{%for show in artist.past_shows %}
+		{%for show in artists.past_shows %}
 		<div class="col-sm-4">
 			<div class="tile tile-show">
 				<img src="{{ show.image_link }}" alt="Show Venue Image" />
@@ -71,6 +75,21 @@
 		{% endfor %}
 	</div>
 </section>
+
+<!-- delete artist -->
+<script>
+	const btn = document.querySelector('.delete-btn')
+	btn.onclick = function(e) {
+		const artistId = e.target.dataset['id'];
+		fetch('/artists/' + artistId, {
+			method: 'DELETE'
+		}).then(function(res) {
+			console.log(res);
+			document.location.href = "pages/home.html";
+		});
+	}
+</script>
+<!-- delete artist -->
 
 {% endblock %}
 

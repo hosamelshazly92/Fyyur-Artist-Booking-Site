@@ -2,11 +2,12 @@
 # Imports
 #----------------------------------------------------------------------------#
 
+
 import sys
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -114,10 +115,11 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO_DONE: replace with real venues data.
-  data_area = Area.query.all()
+  # TODO: replace with real venues data.
+  area = db.session.query(Venue.city, Venue.state).distinct()
+  venue = db.session.query(Venue)
 
-  return render_template('pages/venues.html', areas=data_area)
+  return render_template('pages/venues.html', venues=venue, areas=area)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
@@ -132,10 +134,10 @@ def search_venues():
 def show_venue(venue_id):
   # TODO: replace with real venue data from the venues table, using venue_id
 
-  data_venue = Venue.query.get(venue_id)
-  data_area = Area.query.all()
+  venue = Venue.query.get(venue_id)
+  area = Venue.query.all()
 
-  return render_template('pages/show_venue.html', venue=data_venue, area=data_area)
+  return render_template('pages/show_venue.html', venues=venue, areas=area)
 
 #  Create Venue
 #  ----------------------------------------------------------------
@@ -154,11 +156,11 @@ def create_venue_submission():
     get_state = request.form.get('state')
     get_address = request.form.get('address')
     get_phone = request.form.get('phone')
-    get_genres = request.form.get('genres')
+    get_image_link = request.form.get('image_link')
+    get_genres = request.form.getlist('genres')
     get_facebook_link = request.form.get('facebook_link')
 
-    venue_new = Venue(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, genres=get_genres, facebook_link=get_facebook_link, )
-    print(f'==========> {venue_new}')
+    venue_new = Venue(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link, )
 
     db.session.add(venue_new)
     db.session.commit()
@@ -172,36 +174,42 @@ def create_venue_submission():
     abort (400)
   else:
     # if form.validate_on_submit():
-    #   return 'Venue ' + request.form['name'] + ' was successfully listed!'
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
     return render_template('pages/home.html')
 
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
+  # TODO_DONE: insert form data as a new Venue record in the db, instead
+  # TODO_DONE: modify data to be the data object returned from db insertion
 
-  # on successful db insert, flash success
-  # flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  
+  # TODO_DONE: on unsuccessful db insert, flash an error instead.
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
+  # TODO_DONE: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-
-  # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-  # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+  error = False
+  try:
+    Venue.query.filter_by(id=venue_id).delete()
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    abort (400)
+  else:
+    return jsonify({'success': True})
+    # clicking that button delete it from the db then redirect the user to the homepage
 
 #  Artists
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
   # TODO_DONE: replace with real data returned from querying the database
-  data = Artist.query.all()
+  artist = Artist.query.all()
 
-  return render_template('pages/artists.html', artists=data)
+  return render_template('pages/artists.html', artists=artist)
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
@@ -217,9 +225,9 @@ def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
 
-  data_artist = Artist.query.get(artist_id)
+  artist = Artist.query.get(artist_id)
 
-  return render_template('pages/show_artist.html', artist=data_artist)
+  return render_template('pages/show_artist.html', artists=artist)
 
 #  Update
 #  ----------------------------------------------------------------
@@ -281,38 +289,62 @@ def edit_venue_submission(venue_id):
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
   form = ArtistForm()
+
   return render_template('forms/new_artist.html', form=form)
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
+  error = False
+  try:
+    get_name = request.form.get('name')
+    get_city = request.form.get('city')
+    get_state = request.form.get('state')
+    get_address = request.form.get('address')
+    get_phone = request.form.get('phone')
+    get_image_link = request.form.get('image_link')
+    get_genres = request.form.getlist('genres')
+    get_facebook_link = request.form.get('facebook_link')
 
-  get_name = request.form['name']
-  get_city = request.form['city']
-  get_state = request.form['state']
-  get_phone = request.form['phone']
-  get_genres = request.form['genres']
-  get_facebook_link = request.form['facebook_link']
+    artist_new = Artist(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link, )
 
-  name = Artist(name=get_name)
-  city = Artist(city=get_city)
-  state = Artist(state=get_state)
-  phone = Artist(phone=get_phone)
-  genres = Artist(genres=get_genres)
-  facebook_link = Artist(facebook_link=get_facebook_link)
-  image_link = Artist(image_link='link')
+    db.session.add(artist_new)
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    abort (400)
+  else:
+    # if form.validate_on_submit():
+    flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    return render_template('pages/home.html')
+  # TODO_DONE: insert form data as a new Venue record in the db, instead
+  # TODO_DONE: modify data to be the data object returned from db insertion
 
-  db.session.add_all([name, city, state, phone, genres, facebook_link, image_link])
-  db.session.commit()
-  # called upon submitting the new artist listing form
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
+  # TODO_DONE: on unsuccessful db insert, flash an error instead.
 
-  # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-  return render_template('pages/home.html')
+#  Delete
+#  ----------------------------------------------------------------
 
+@app.route('/artists/<artist_id>', methods=['DELETE'])
+def delete_artist(artist_id):
+  error = False
+  try:
+    Artist.query.filter_by(id=artist_id).delete()
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    abort (400)
+  else:
+    return jsonify({'success': True})
 
 #  Shows
 #  ----------------------------------------------------------------
@@ -322,9 +354,9 @@ def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data_artist = Artist.query.all()
+  artist = Artist.query.all()
 
-  return render_template('pages/shows.html', data=data_artist)
+  return render_template('pages/shows.html', data=artist)
 
 @app.route('/shows/create')
 def create_shows():
