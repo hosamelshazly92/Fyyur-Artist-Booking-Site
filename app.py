@@ -50,7 +50,7 @@ class Artist(db.Model):
   website = db.Column(db.String(120))
   phone = db.Column(db.String(120))
   address = db.Column(db.String(120))
-  genres = db.Column(db.String(120))
+  genres = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
   seeking_venue = db.Column(db.Boolean)
   city = db.Column(db.String(120))
@@ -73,7 +73,7 @@ class Venue(db.Model):
   image_link = db.Column(db.String(500))
   website = db.Column(db.String(120))
   phone = db.Column(db.String(120))
-  genres = db.Column(db.String(120))
+  genres = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
   seeking_talent = db.Column(db.String(120))
   seeking_description = db.Column(db.String(500))
@@ -160,7 +160,7 @@ def create_venue_submission():
     get_genres = request.form.getlist('genres')
     get_facebook_link = request.form.get('facebook_link')
 
-    venue_new = Venue(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link, )
+    venue_new = Venue(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link)
 
     db.session.add(venue_new)
     db.session.commit()
@@ -199,7 +199,7 @@ def delete_venue(venue_id):
   if error:
     abort (400)
   else:
-    return jsonify({'success': True})
+    return jsonify({'success': True}), redirect(url_for('index'))
     # clicking that button delete it from the db then redirect the user to the homepage
 
 #  Artists
@@ -207,7 +207,7 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
   # TODO_DONE: replace with real data returned from querying the database
-  artist = Artist.query.all()
+  artist = Artist.query.order_by(Artist.id).all()
 
   return render_template('pages/artists.html', artists=artist)
 
@@ -234,28 +234,48 @@ def show_artist(artist_id):
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
   form = ArtistForm()
-  artist={
-    "id": 4,
-    "name": "Guns N Petals",
-    "genres": ["Rock n Roll"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "326-123-5000",
-    "website": "https://www.gunsnpetalsband.com",
-    "facebook_link": "https://www.facebook.com/GunsNPetals",
-    "seeking_venue": True,
-    "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-    "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
-  }
-  # TODO: populate form with fields from artist with ID <artist_id>
+  artist = Artist.query.get(artist_id)
+
+  # TODO_DONE: populate form with fields from artist with ID <artist_id>
   return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-  # TODO: take values from the form submitted, and update existing
-  # artist record with ID <artist_id> using the new attributes
+  error = False
+  try:
+    get_name = request.form.get('name')
+    get_city = request.form.get('city')
+    get_state = request.form.get('state')
+    get_address = request.form.get('address')
+    get_phone = request.form.get('phone')
+    get_image_link = request.form.get('image_link')
+    get_genres = request.form.getlist('genres')
+    get_facebook_link = request.form.get('facebook_link')
 
-  return redirect(url_for('show_artist', artist_id=artist_id))
+    artist = Artist.query.get(artist_id)
+
+    artist.name = get_name
+    artist.city = get_city
+    artist.state = get_state
+    artist.address = get_address
+    artist.phone = get_phone
+    artist.image_link = get_image_link
+    artist.genres = get_genres
+    artist.facebook_link = get_facebook_link
+
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    abort (400)
+  else:
+    return redirect(url_for('show_artist', artist_id=artist_id))
+  # TODO_DONE: take values from the form submitted, and update existing
+  # artist record with ID <artist_id> using the new attributes
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
@@ -305,7 +325,7 @@ def create_artist_submission():
     get_genres = request.form.getlist('genres')
     get_facebook_link = request.form.get('facebook_link')
 
-    artist_new = Artist(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link, )
+    artist_new = Artist(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link)
 
     db.session.add(artist_new)
     db.session.commit()
@@ -344,7 +364,7 @@ def delete_artist(artist_id):
   if error:
     abort (400)
   else:
-    return jsonify({'success': True})
+    return jsonify({'success': True}), redirect(url_for('index'))
 
 #  Shows
 #  ----------------------------------------------------------------

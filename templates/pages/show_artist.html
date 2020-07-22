@@ -5,6 +5,8 @@
 	<div class="col-sm-6">
 		<button class="btn btn-danger delete-btn" data-id={{artists.id}}>Delete Artist</button>
 
+		<a class="btn btn-success delete-btn" data-id={{artists.id}} href="/artists/{{artists.id}}/edit">Edit</a>
+
 		<h1 class="monospace">
 			{{ artists.name }}
 		</h1>
@@ -83,9 +85,9 @@
 		const artistId = e.target.dataset['id'];
 		fetch('/artists/' + artistId, {
 			method: 'DELETE'
-		}).then(function(res) {
-			console.log(res);
-			document.location.href = "pages/home.html";
+		}).then(function(response) {
+			console.log(response);
+			document.location.href = "/";
 		});
 	}
 </script>
