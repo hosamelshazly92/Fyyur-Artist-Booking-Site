@@ -33,12 +33,25 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 
 # association table
-show = db.Table('show',
-  db.Column('id', db.Integer, primary_key=True), 
-  db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')), 
-  db.Column('venue_id', db.Integer, db.ForeignKey('venue.id')),
-  db.Column('start_time', db.DateTime)
-)
+# show = db.Table('show',
+#   db.Column('id', db.Integer, primary_key=True), 
+#   db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')), 
+#   db.Column('venue_id', db.Integer, db.ForeignKey('venue.id')),
+#   db.Column('start_time', db.DateTime)
+# )
+
+class Show(db.Model):
+  __tablename__ = 'show'
+
+  id = db.Column(db.Integer, primary_key=True) 
+  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id')) 
+  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
+  start_time = db.Column(db.DateTime)
+
+  venue = db.relationship("Venue")
+
+  def __repr__(self):
+    return f'<Show ID: {self.id}, Start Time: {self.start_time}>'
 
 # association parent table (left)
 class Artist(db.Model):
@@ -56,7 +69,7 @@ class Artist(db.Model):
   city = db.Column(db.String(120))
   state = db.Column(db.String(120))
 
-  venues = db.relationship("Venue", secondary=show, backref=db.backref('artists', lazy=True))
+  venues = db.relationship("Show", backref="artist")
 
   def __repr__(self):
     return f'<Artist ID: {self.id}, Name: {self.name}>'
@@ -320,7 +333,7 @@ def edit_venue_submission(venue_id):
     abort (400)
   else:
     return redirect(url_for('show_venue', venue_id=venue_id))
-  # TODO: take values from the form submitted, and update existing
+  # TODO_DONE: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
 
 #  Create Artist
@@ -391,12 +404,13 @@ def delete_artist(artist_id):
 
 @app.route('/shows')
 def shows():
-  # displays list of shows at /shows
-  # TODO: replace with real venues data.
+  # TODO_DONE: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  artist = Artist.query.all()
+  # show = db.session.query(Artist).all()
+  # show = db.session.query(show).all()
+  show = Show.query.all()
 
-  return render_template('pages/shows.html', data=artist)
+  return render_template('pages/shows.html', shows=show)
 
 @app.route('/shows/create')
 def create_shows():
