@@ -118,6 +118,7 @@ def venues():
   # TODO: replace with real venues data.
   area = db.session.query(Venue.city, Venue.state).distinct()
   venue = db.session.query(Venue)
+  # artist = Artist.query.order_by(Artist.id).all()
 
   return render_template('pages/venues.html', venues=venue, areas=area)
 
@@ -199,8 +200,7 @@ def delete_venue(venue_id):
   if error:
     abort (400)
   else:
-    return jsonify({'success': True}), redirect(url_for('index'))
-    # clicking that button delete it from the db then redirect the user to the homepage
+    return jsonify({'success': True})
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -280,28 +280,48 @@ def edit_artist_submission(artist_id):
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
   form = VenueForm()
-  venue={
-    "id": 1,
-    "name": "The Musical Hop",
-    "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-    "address": "1015 Folsom Street",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "123-123-1234",
-    "website": "https://www.themusicalhop.com",
-    "facebook_link": "https://www.facebook.com/TheMusicalHop",
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
-  }
-  # TODO: populate form with values from venue with ID <venue_id>
+  venue = Venue.query.get(venue_id)
+  
+  # TODO_DONE: populate form with values from venue with ID <venue_id>
   return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
+  error = False
+  try:
+    get_name = request.form.get('name')
+    get_city = request.form.get('city')
+    get_state = request.form.get('state')
+    get_address = request.form.get('address')
+    get_phone = request.form.get('phone')
+    get_image_link = request.form.get('image_link')
+    get_genres = request.form.getlist('genres')
+    get_facebook_link = request.form.get('facebook_link')
+
+    venue = Venue.query.get(venue_id)
+
+    venue.name = get_name
+    venue.city = get_city
+    venue.state = get_state
+    venue.address = get_address
+    venue.phone = get_phone
+    venue.image_link = get_image_link
+    venue.genres = get_genres
+    venue.facebook_link = get_facebook_link
+
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    abort (400)
+  else:
+    return redirect(url_for('show_venue', venue_id=venue_id))
   # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
-  return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
 #  ----------------------------------------------------------------
@@ -364,7 +384,7 @@ def delete_artist(artist_id):
   if error:
     abort (400)
   else:
-    return jsonify({'success': True}), redirect(url_for('index'))
+    return jsonify({'success': True})
 
 #  Shows
 #  ----------------------------------------------------------------
