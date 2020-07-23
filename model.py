@@ -10,8 +10,6 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
-from flask_wtf import FlaskForm
-from forms import *
 from flask_migrate import Migrate
 from flask import abort
 #----------------------------------------------------------------------------#
@@ -56,10 +54,12 @@ class Artist(db.Model):
   genres = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
   seeking_venue = db.Column(db.Boolean)
+  seeking_description = db.Column(db.String(500))
   city = db.Column(db.String(120))
   state = db.Column(db.String(120))
 
-  venues = db.relationship("Show", backref="artist")
+  venues = db.relationship("Show", backref="artist", lazy=True)
+  albums = db.relationship("Album", backref="artist", lazy=True)
 
   def __repr__(self):
     return f'<Artist ID: {self.id}, Name: {self.name}>'
@@ -78,11 +78,9 @@ class Venue(db.Model):
   phone = db.Column(db.String(120))
   genres = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
-  seeking_talent = db.Column(db.String(120))
-  seeking_description = db.Column(db.String(500))
+  seeking_talent = db.Column(db.Boolean)
   city = db.Column(db.String(120))
   state = db.Column(db.String(120))
-  num_upcoming_shows = db.Column(db.Integer, default=0)
 
   def __repr__(self):
     return f'<Venue ID: {self.id}, Name: {self.name}, No. Events: {self.num_upcoming_shows}>'
@@ -106,3 +104,27 @@ def format_datetime(value, format='medium'):
 app.jinja_env.filters['datetime'] = format_datetime
 
 #----------------------------------------------------------------------------#
+
+# albums
+class Album(db.Model):
+  __tablename__ = 'album'
+
+  id = db.Column(db.Integer, primary_key=True)
+  album = db.Column(db.String(150))
+  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
+
+  songs = db.relationship("Song", backref="album", lazy=True)
+
+  def __repr__(self):
+    return f'Album: {self.album}, Artist ID: {self.artist_id}'
+
+# songs
+class Song(db.Model):
+  __tablename__ = 'song'
+
+  id = db.Column(db.Integer, primary_key=True)
+  song = db.Column(db.String(150))
+  album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
+
+  def __repr__(self):
+    return f'Song: {self.song}, Album ID: {self.album_id}'

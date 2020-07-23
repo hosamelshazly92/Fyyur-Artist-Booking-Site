@@ -7,6 +7,10 @@
       <div class="form-group">
         <label for="name">Name</label>
         {{ form.name(class_ = 'form-control', autofocus = true) }}
+        <!-- display error flag -->
+        <!-- <ul>
+          <li style="color:red">{{ form.name.errors }}</li>
+        </ul> -->
       </div>
       <div class="form-group">
           <label>City & State</label>

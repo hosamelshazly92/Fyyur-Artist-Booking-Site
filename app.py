@@ -1,4 +1,5 @@
 from model import *
+from forms import *
 
 #----------------------------------------------------------------------------#
 # Controllers.
@@ -54,7 +55,8 @@ def create_venue_form():
   return render_template('forms/new_venue.html', form=form)
 
 @app.route('/venues/create', methods=['POST'])
-def create_venue_submission():    
+def create_venue_submission():
+  form = VenueForm()
   error = False
   try:
     get_name = request.form.get('name')
@@ -79,7 +81,6 @@ def create_venue_submission():
   if error:
     abort (400)
   else:
-    # if form.validate_on_submit():
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
     return render_template('pages/home.html')
 
@@ -166,6 +167,7 @@ def edit_artist_submission(artist_id):
     get_image_link = request.form.get('image_link')
     get_genres = request.form.getlist('genres')
     get_facebook_link = request.form.get('facebook_link')
+    get_seeking_description = request.form.get('seeking_description')
 
     artist = Artist.query.get(artist_id)
 
@@ -177,6 +179,7 @@ def edit_artist_submission(artist_id):
     artist.image_link = get_image_link
     artist.genres = get_genres
     artist.facebook_link = get_facebook_link
+    artist.seeking_description = get_seeking_description
 
     db.session.commit()
   except:
@@ -273,7 +276,6 @@ def create_artist_submission():
   if error:
     abort (400)
   else:
-    # if form.validate_on_submit():
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
     return render_template('pages/home.html')
   # TODO_DONE: insert form data as a new Venue record in the db, instead
