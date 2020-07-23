@@ -130,7 +130,6 @@ def search_artists():
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO_DONE: replace with real venue data from the venues table, using venue_id
-
   artist = Artist.query.get(artist_id)
   show = Show.query.select_from(Artist).filter(Show.artist_id==artist_id).all()
 
@@ -254,6 +253,7 @@ def create_artist_form():
 def create_artist_submission():
   error = False
   try:
+    # create new artist
     get_name = request.form.get('name')
     get_city = request.form.get('city')
     get_state = request.form.get('state')
@@ -265,7 +265,14 @@ def create_artist_submission():
 
     artist_new = Artist(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link)
 
-    db.session.add(artist_new)
+    # add album & song
+    get_album = request.form.get('album')
+    get_song = request.form.get('song')
+
+    album_new = Album(name=get_album, artist=artist_new)
+    song_new = Song(name=get_song, album=album_new)
+
+    db.session.add_all([artist_new, album_new, song_new])
     db.session.commit()
   except:
     error = True
@@ -347,12 +354,10 @@ def create_show_submission():
   if error:
     abort (400)
   else:
-    # if form.validate_on_submit():
     flash('Show was successfully listed!')
     return render_template('pages/home.html')  
     # TODO_DONE: on unsuccessful db insert, flash an error instead.
   
-
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
@@ -372,7 +377,6 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('errors')
 
-#----------------------------------------------------------------------------#
 # Launch.
 #----------------------------------------------------------------------------#
 

@@ -18,11 +18,11 @@ class ShowForm(FlaskForm):
 
 class VenueForm(FlaskForm):
     name = StringField(
-        'name', validators=[InputRequired('name is required'), Length(min=5, max=10, message='name must be between 5 and 10 characters')]
+        'name', validators=[InputRequired('name is required'), Length(min=5, max=20, message='name must be between 5 and 20 characters')]
     )
 
     city = StringField(
-        'city', validators=[InputRequired('city is required'), Length(min=5, max=10, message='city must be between 5 and 10 characters')]
+        'city', validators=[InputRequired('city is required'), Length(min=5, max=20, message='city must be between 5 and 20 characters')]
     )
     state = SelectField(
         'state', validators=[InputRequired()],
@@ -120,10 +120,10 @@ class VenueForm(FlaskForm):
 
 class ArtistForm(FlaskForm):
     name = StringField(
-        'name', validators=[InputRequired('name is required'), Length(min=5, max=10, message='name must be between 5 and 10 characters')]
+        'name', validators=[InputRequired('name is required'), Length(min=5, max=20, message='name must be between 5 and 20 characters')]
     )
     city = StringField(
-        'city', validators=[InputRequired('city is required'), Length(min=5, max=10, message='city must be between 5 and 10 characters')]
+        'city', validators=[InputRequired('city is required'), Length(min=5, max=20, message='city must be between 5 and 20 characters')]
     )
     state = SelectField(
         'state', validators=[InputRequired()],

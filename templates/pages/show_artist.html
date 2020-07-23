@@ -79,38 +79,9 @@
 		{% endfor %}
 	</div>
 </section>
-<section class="container-wrapper">
-	{% for album in artists.albums %}
-		<div class="album-wrapper">
-			<label>Album:</label>
-			<p>{{ album.name }}</p>
-		</div>
-		<div class="song-wrapper">
-			<label>Songs:</label>
-			{% for song in album.songs %}
-				<p>{{ song.name }}</p>
-			{% endfor %}
-		</div>
-	{% endfor %}
-</section>
 
-<!-- <div class="album-wrapper">
-		<form>
-			<label class="label-wrapper" for="album">Album name:</label>
-			<input type="text" name="album">
-			<input type="submit" value="Add Album">
-		</form>
-	</div>
-	<div class="song-wrapper">
-		<form>
-			<label class="label-wrapper" for="song">Song name:</label>
-			<input type="text" name="song">
-			<input type="submit" value="Add Song">
-		</form>
-	</div> -->
-
-<!-- delete artist -->
 <script>
+	// delete artist
 	const btn = document.querySelector('.delete-btn')
 	btn.onclick = function(e) {
 		const artistId = e.target.dataset['id'];

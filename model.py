@@ -32,9 +32,9 @@ class Show(db.Model):
   __tablename__ = 'show'
 
   id = db.Column(db.Integer, primary_key=True) 
-  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id')) 
-  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
-  start_time = db.Column(db.DateTime)
+  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False) 
+  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
+  start_time = db.Column(db.DateTime, unique=True)
 
   venue = db.relationship("Venue")
 
@@ -47,19 +47,18 @@ class Artist(db.Model):
 
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
-  image_link = db.Column(db.String(500))
+  image_link = db.Column(db.String(500), nullable=False)
   website = db.Column(db.String(120))
-  phone = db.Column(db.String(120))
+  phone = db.Column(db.String(120), nullable=False, unique=True)
   address = db.Column(db.String(120))
   genres = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
-  seeking_venue = db.Column(db.Boolean)
+  seeking_venue = db.Column(db.Boolean, nullable=False, default=True)
   seeking_description = db.Column(db.String(500))
   city = db.Column(db.String(120))
   state = db.Column(db.String(120))
 
   venues = db.relationship("Show", backref="artist", lazy=True)
-  albums = db.relationship("Album", backref="artist", lazy=True)
 
   def __repr__(self):
     return f'<Artist ID: {self.id}, Name: {self.name}>'
@@ -72,13 +71,13 @@ class Venue(db.Model):
 
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String, nullable=False)
-  address = db.Column(db.String(120))
-  image_link = db.Column(db.String(500))
+  image_link = db.Column(db.String(500), nullable=False)
   website = db.Column(db.String(120))
-  phone = db.Column(db.String(120))
+  phone = db.Column(db.String(120), nullable=False, unique=True)
+  address = db.Column(db.String(120))
   genres = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
-  seeking_talent = db.Column(db.Boolean)
+  seeking_talent = db.Column(db.Boolean, nullable=False, default=True)
   city = db.Column(db.String(120))
   state = db.Column(db.String(120))
 
@@ -104,27 +103,3 @@ def format_datetime(value, format='medium'):
 app.jinja_env.filters['datetime'] = format_datetime
 
 #----------------------------------------------------------------------------#
-
-# albums
-class Album(db.Model):
-  __tablename__ = 'album'
-
-  id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(150))
-  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
-
-  songs = db.relationship("Song", backref="album", lazy=True)
-
-  def __repr__(self):
-    return f'<Album: {self.name}, Artist ID: {self.artist_id}>'
-
-# songs
-class Song(db.Model):
-  __tablename__ = 'song'
-
-  id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(150))
-  album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
-
-  def __repr__(self):
-    return f'<Song: {self.name}, Album ID: {self.album_id}>'
