@@ -110,21 +110,21 @@ class Album(db.Model):
   __tablename__ = 'album'
 
   id = db.Column(db.Integer, primary_key=True)
-  album = db.Column(db.String(150))
+  name = db.Column(db.String(150))
   artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
 
   songs = db.relationship("Song", backref="album", lazy=True)
 
   def __repr__(self):
-    return f'Album: {self.album}, Artist ID: {self.artist_id}'
+    return f'Album: {self.name}, Artist ID: {self.artist_id}'
 
 # songs
 class Song(db.Model):
   __tablename__ = 'song'
 
   id = db.Column(db.Integer, primary_key=True)
-  song = db.Column(db.String(150))
+  name = db.Column(db.String(150))
   album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
 
   def __repr__(self):
-    return f'Song: {self.song}, Album ID: {self.album_id}'
+    return f'Song: {self.name}, Album ID: {self.album_id}'
