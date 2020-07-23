@@ -128,10 +128,9 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
+  # TODO_DONE: replace with real venues data.
   area = db.session.query(Venue.city, Venue.state).distinct()
   venue = db.session.query(Venue)
-  # artist = Artist.query.order_by(Artist.id).all()
 
   return render_template('pages/venues.html', venues=venue, areas=area)
 
@@ -244,7 +243,7 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
-  # TODO: replace with real venue data from the venues table, using venue_id
+  # TODO_DONE: replace with real venue data from the venues table, using venue_id
 
   artist = Artist.query.get(artist_id)
   show = Show.query.select_from(Artist).filter(Show.artist_id==artist_id).all()
