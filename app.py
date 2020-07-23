@@ -247,7 +247,7 @@ def show_artist(artist_id):
   # TODO: replace with real venue data from the venues table, using venue_id
 
   artist = Artist.query.get(artist_id)
-  show = Artist.query.join(Show).filter(Artist.id==artist_id).all()
+  show = Show.query.select_from(Artist).filter(Show.artist_id==artist_id).all()
 
   upcoming = 0
   past = 0
@@ -256,7 +256,7 @@ def show_artist(artist_id):
       upcoming += 1
     else:
       past += 1
-  print(f'==========> Upcoming: {upcoming}, Past: {past}')
+  # print(f'==========> Upcoming: {upcoming}, Past: {past}')
 
   return render_template('pages/show_artist.html', artists=artist, shows=show, upcoming_shows_count=upcoming, past_shows_count=past, now=datetime.now())
 
