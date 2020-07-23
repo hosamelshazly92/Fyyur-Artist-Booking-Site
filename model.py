@@ -116,7 +116,7 @@ class Album(db.Model):
   songs = db.relationship("Song", backref="album", lazy=True)
 
   def __repr__(self):
-    return f'Album: {self.name}, Artist ID: {self.artist_id}'
+    return f'<Album: {self.name}, Artist ID: {self.artist_id}>'
 
 # songs
 class Song(db.Model):
@@ -127,4 +127,4 @@ class Song(db.Model):
   album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
 
   def __repr__(self):
-    return f'Song: {self.name}, Album ID: {self.album_id}'
+    return f'<Song: {self.name}, Album ID: {self.album_id}>'

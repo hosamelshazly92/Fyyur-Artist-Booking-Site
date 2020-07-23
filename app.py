@@ -143,8 +143,6 @@ def show_artist(artist_id):
       past += 1
   # print(f'==========> Upcoming: {upcoming}, Past: {past}')
 
-  
-
   return render_template('pages/show_artist.html', artists=artist, shows=show, upcoming_shows_count=upcoming, past_shows_count=past, now=datetime.now())
 
 #  Update
