@@ -146,12 +146,20 @@ def search_venues():
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-  # TODO: replace with real venue data from the venues table, using venue_id
-
+  # TODO_DONE: replace with real venue data from the venues table, using venue_id
   venue = Venue.query.get(venue_id)
-  area = Venue.query.all()
+  show = Show.query.join(Venue).filter(Venue.id==venue_id).all()
 
-  return render_template('pages/show_venue.html', venues=venue, areas=area)
+  upcoming = 0
+  past = 0
+  for i in show:
+    if (i.start_time > datetime.now()):
+      upcoming += 1
+    else:
+      past += 1
+  # print(f'==========> Upcoming: {upcoming}, Past: {past}')
+
+  return render_template('pages/show_venue.html', venues=venue, shows=show, upcoming_shows_count=upcoming, past_shows_count=past, now=datetime.now())
 
 #  Create Venue
 #  ----------------------------------------------------------------
@@ -239,8 +247,18 @@ def show_artist(artist_id):
   # TODO: replace with real venue data from the venues table, using venue_id
 
   artist = Artist.query.get(artist_id)
+  show = Artist.query.join(Show).filter(Artist.id==artist_id).all()
 
-  return render_template('pages/show_artist.html', artists=artist)
+  upcoming = 0
+  past = 0
+  for i in show:
+    if (i.start_time > datetime.now()):
+      upcoming += 1
+    else:
+      past += 1
+  print(f'==========> Upcoming: {upcoming}, Past: {past}')
+
+  return render_template('pages/show_artist.html', artists=artist, shows=show, upcoming_shows_count=upcoming, past_shows_count=past, now=datetime.now())
 
 #  Update
 #  ----------------------------------------------------------------
