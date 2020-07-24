@@ -156,6 +156,7 @@ def edit_artist(artist_id):
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
+  form = ArtistForm()
   error = False
   try:
     get_name = request.form.get('name')
@@ -166,8 +167,8 @@ def edit_artist_submission(artist_id):
     get_image_link = request.form.get('image_link')
     get_genres = request.form.getlist('genres')
     get_facebook_link = request.form.get('facebook_link')
+    get_seeking_venue = form.seeking_venue.data
     get_seeking_description = request.form.get('seeking_description')
-
     artist = Artist.query.get(artist_id)
 
     artist.name = get_name
@@ -179,6 +180,7 @@ def edit_artist_submission(artist_id):
     artist.genres = get_genres
     artist.facebook_link = get_facebook_link
     artist.seeking_description = get_seeking_description
+    artist.seeking_venue = get_seeking_venue
 
     db.session.commit()
   except:
@@ -265,14 +267,7 @@ def create_artist_submission():
 
     artist_new = Artist(name=get_name, city=get_city, state=get_state, address=get_address, phone=get_phone, image_link=get_image_link, genres=get_genres, facebook_link=get_facebook_link)
 
-    # add album & song
-    get_album = request.form.get('album')
-    get_song = request.form.get('song')
-
-    album_new = Album(name=get_album, artist=artist_new)
-    song_new = Song(name=get_song, album=album_new)
-
-    db.session.add_all([artist_new, album_new, song_new])
+    db.session.add(artist_new)
     db.session.commit()
   except:
     error = True

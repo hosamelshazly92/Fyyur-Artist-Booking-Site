@@ -1,7 +1,8 @@
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, PasswordField, BooleanField
+from wtforms import StringField, SelectField, SelectMultipleField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, AnyOf, URL, Length
+from wtforms.fields.html5 import DateTimeField
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
@@ -217,9 +218,13 @@ class ArtistForm(FlaskForm):
         # TODO implement enum restriction
         'facebook_link', validators=[URL('Enter a valid URL')]
     )
-    # seeking_venue = BooleanField(
-    #     'seeking_venue', validators=[InputRequired()]
-    # )
+    seeking_venue = SelectField(
+        'seeking_venue', validators=[InputRequired()], coerce=lambda x: x == 'True',
+        choices=[
+            (True, 'Yes'),
+            (False, 'No')
+        ]
+    )
     seeking_description = StringField(
         'seeking_description'
     )
