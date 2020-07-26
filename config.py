@@ -5,7 +5,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 ENV = 'dev';
 
-if ENV == 'dev':
+if ENV != 'dev':
     # Enable debug mode.
     DEBUG = True
     # Connect to the database
